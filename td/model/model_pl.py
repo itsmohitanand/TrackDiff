@@ -18,8 +18,14 @@ class MLPL(L.LightningModule):
         x, y = batch
    
         y_hat = self.model(x)
-        loss = self.masked_rmse(y_hat, y)
+        rmse = self.masked_rmse(y_hat, y)
+        dist_loss = self.distance_between_points(y_hat)
+
+        loss = rmse +  0.1 *dist_loss
+
         self.log("train/loss", loss, prog_bar=True)
+        self.log("train/dist_loss", dist_loss, prog_bar=True)
+        self.log("train/rmse", rmse, prog_bar=True)
         
         return loss
 
@@ -52,3 +58,9 @@ class MLPL(L.LightningModule):
         rmse = torch.sqrt(mse)
         
         return rmse
+
+    def distance_between_points(self, y_hat):
+        d = torch.diff(y_hat, dim=-1)
+        dist = torch.hypot(d[:,0,:], d[:,1,:])
+
+        return dist.mean()
