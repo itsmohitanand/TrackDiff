@@ -29,8 +29,7 @@ class TrackData(Dataset):
 
     def __getitem__(self,idx):
         
-        data = self.df_list[idx]
-        
+        data = self.df_list[idx].copy()
         data = self.norm(data)
 
         ind_max = min(self.max_steps, len(data))
@@ -47,6 +46,7 @@ class TrackData(Dataset):
         
         month_sin = np.sin(2*np.pi*data.month.values[0]/12)
         month_cos = np.cos(2*np.pi*data.month.values[0]/12)
+        
 
         ind_lon_lat = int(ind_max//2)
         lon, lat = self.random_noise_lat_lon(data.lon.values[ind_lon_lat], data.lat.values[ind_lon_lat])
@@ -60,8 +60,8 @@ class TrackData(Dataset):
 
     def random_noise_lat_lon(self, lon:int, lat:int):
 
-        lon_noise = np.random.normal(0, 0.1, 1)
-        lat_noise = np.random.normal(0, 0.1, 1)
+        lon_noise = np.random.normal(loc = 0, scale=0.005, size=(1,))
+        lat_noise = np.random.normal(loc = 0, scale=0.005, size=(1,))
         
         return lon + lon_noise[0], lat + lat_noise[0]
 
